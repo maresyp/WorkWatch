@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  web-app:
+    build: .
+    ports:
+      - "80:8000"
+    depends_on:
+      - db-web
+
+  db-web:
+    image: postgres
+    user: postgres
+    restart: "on-failure"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=5432
+    ports: # TODO : hide this port after testing is done
+      - 5432:5432
+    expose:
+      - 5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-data:

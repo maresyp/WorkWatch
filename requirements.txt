@@ -1,0 +1,10 @@
+faker
+python-dotenv
+
+Django>=4.0.0
+requests
+pillow
+whitenoise
+channels
+
+psycopg2-binary
