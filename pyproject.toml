@@ -1,6 +1,21 @@
 [tool.ruff]
 select = ["ALL"]
-ignore = ["E501", "Q", "D", "ANN", "INP",]
+ignore = [
+    "Q", "D", "ANN", "INP", "N999",
+    "E712",  # Allow using if x == False, as it's not always equivalent to if x.
+    "E501",  # Supress line-too-long warnings: trust black's judgement on this one.
+    "A003",  # Allow shawoding class attribute: django uses id.
+    "B904",  # Allow unchained exceptions: it's fine to raise 404 in django.
+    "E712",  # Allow using if x == False, as it's not always equivalent to if x.
+    "E501",  # Supress line-too-long warnings: trust black's judgement on this one.
+]
+
+fixable = [
+    "F401",  # Remove unused imports.
+    "NPY001",  # Fix numpy types, which are removed in 1.24.
+    "RUF100",  # Remove unused noqa comments.
+]
+
 
 # Exclude a variety of commonly ignored directories.
 exclude = [
