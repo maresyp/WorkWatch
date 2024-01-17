@@ -1,3 +1,10 @@
+[project]
+name = "WorkWatch"
+version = "0.1.0"
+
+[tool.setuptools]
+py-modules = []
+
 [tool.ruff]
 select = ["ALL"]
 ignore = [
@@ -8,12 +15,14 @@ ignore = [
     "B904",  # Allow unchained exceptions: it's fine to raise 404 in django.
     "E712",  # Allow using if x == False, as it's not always equivalent to if x.
     "E501",  # Supress line-too-long warnings: trust black's judgement on this one.
+    "FBT002",
 ]
 
 fixable = [
     "F401",  # Remove unused imports.
     "NPY001",  # Fix numpy types, which are removed in 1.24.
     "RUF100",  # Remove unused noqa comments.
+    "I001",
 ]
 
 

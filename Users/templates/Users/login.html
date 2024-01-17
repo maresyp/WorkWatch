@@ -1,0 +1,39 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block content %}
+
+<div class="auth">
+
+    <div class="card">
+        <div class="auth__header__heart">
+            <p></p>
+        </div>
+
+        <div class="auth__header text-center">
+            <h3>Logowanie</h3>
+        </div>
+
+        <form action="" method="POST" class="form auth__form">
+            {% csrf_token %}
+            <!-- Input:Username -->
+            <div class="form__field">
+                <label for="formInput#text">Nazwa użytkownika: </label>
+                <input class="input input--text" id="formInput#text" type="text" name="username"
+                    placeholder="Podaj nazwę użytkownika..." />
+            </div>
+
+            <!-- Input:Password -->
+            <div class="form__field">
+                <label for="formInput#password">Hasło: </label>
+                <input class="input input--password" id="formInput#passowrd" type="password" name="password"
+                    placeholder="••••••••" />
+            </div>
+
+            <div class="auth__actions">
+                <input class="btn btn--main btn--lg" type="submit" value="Zaloguj się!" />
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}
