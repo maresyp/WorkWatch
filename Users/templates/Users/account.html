@@ -1,0 +1,43 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<!-- Main Section -->
+<main class="settingsPage profile my-xl">
+  <div class="container">
+    <div class="layout">
+      <div class="column column--1of3">
+        <div class="card text-center">
+          <div class="card__body dev">
+            <a class="tag tag--pill tag--main settings__btn tag--lg" href="{% url 'edit_account' %}">Edytuj profil</a>
+            <img class="avatar avatar--xl dev__avatar" src="{{profile.imageURL}}" alt="Profile_logo"/>
+            <h2 class="dev__username">{{user.username}}</h2>
+            <p class="dev__fullname">{{user.first_name }} {{user.last_name}}</p>
+
+            {% if profile.age %}
+            <p class="dev__location">Wiek: {{profile.age}}</p>
+            {% endif %}
+
+            {% if profile.city %}
+            <p class="dev__location">Ulica: {{profile.street}}</p>
+            <p class="dev__location">Numer domu: {{profile.home_number}}</p>
+            <p class="dev__location">Miasto: {{profile.city}}</p>
+            <p class="dev__location">Kod pocztowy: {{profile.postal_code}}</p>
+            {% endif %}
+
+            {% if profile.gender %}
+            <p class="dev__location">Telefon: {{profile.phone_number}}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+
+      <div class="column column--2of3">
+        
+      </div>
+    </div>
+  </div>
+</main>
+
+{% endblock %}

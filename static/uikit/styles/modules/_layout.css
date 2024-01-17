@@ -1,0 +1,35 @@
+.layout {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+}
+
+.layout > .column {
+  margin-bottom: 3rem;
+}
+
+.layout > .column.column--1of3 {
+  flex-basis: 30%;
+  height: fit-content;
+}
+
+.layout > .column.column--2of3 {
+  flex-basis: 64%;
+  display: block;
+}
+
+.layout > .column.column--2of3_mod {
+  width: 69%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.layout > .column.column--1of2 {
+  flex-basis: 48%;
+}
+
+@media screen and (max-width: 1080px) {
+  .layout > .column {
+    flex-basis: 100% !important;
+  }
+}
