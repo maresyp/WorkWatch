@@ -17,6 +17,12 @@ class Profile(models.Model):
     phone_number = models.CharField(max_length=40, default="", blank=True)
     profile_image = models.ImageField(upload_to='profiles', null=True, blank=True, default='profiles/user-default.png')
 
+    available_leave = models.IntegerField(default=26)
+    on_demand_leave = models.IntegerField(default=4)
+    parental_leave = models.IntegerField(default=5)
+    force_majeure_leave = models.IntegerField(default=2)
+    
+
     def __str__(self) -> str:
         return str(self.user)
 
