@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
-
-from Users.models import User
+from django.contrib.auth.models import User, Group
 
 admins = {
     'admin': {
@@ -28,36 +27,26 @@ users = {
 
 
 class Command(BaseCommand):
-    """
-    A Django management command class that populates the database with default
-    users, and other required items.
-
-    :param BaseCommand: Inherits from Django's BaseCommand class.
-    :type BaseCommand: class
-    """
     help = 'Populates the database with default users, tags and other needed stuff'
 
     def handle(self, *args, **kwargs):
-        """
-        The function that executes the command logic.
+        group, created = Group.objects.get_or_create(name='Managers')
+        if created:
+            print("Created 'Managers' group")
+        else:
+            print("'Managers' group already exists")
 
-        :param args: Command arguments.
-        :type args: tuple
-        :param kwargs: Command keyword arguments.
-        :type kwargs: dict
-        """
-        # create default admins
         for key, value in admins.items():
             try:
-                User.objects.create_superuser(**value)
+                user = User.objects.create_superuser(**value)
                 print(f'Created super-user with parameters: {value}')
             except Exception as e:
                 print(f'Error: {e} during creating {key} super-user.')
 
-        # create default users
         for key, value in users.items():
             try:
-                User.objects.create_user(**value)
-                print(f'Created user with parameters: {value}')
+                user = User.objects.create_user(**value)
+                group.user_set.add(user)
+                print(f'Created managers with parameters: {value}')
             except Exception as e:
                 print(f'Error: {e} during creating {key} user.')

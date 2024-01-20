@@ -8,7 +8,6 @@ from .forms import ChangePasswordForm, ProfileForm
 
 
 def login_user(request):
-
     page = 'login'
 
     if request.user.is_authenticated:
