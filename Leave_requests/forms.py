@@ -9,6 +9,11 @@ class LeaveRequestForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date': forms.DateInput(attrs={'type': 'date'}),
         }
+        labels = {
+            'start_date': 'Data początkowa:', 
+            'end_date': 'Data końcowa:', 
+            'leave_type': 'Rodzaj urlopu:',
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

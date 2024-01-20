@@ -24,7 +24,7 @@
             <p class="dev__location"><b>Kod pocztowy:</b></p>
             <p class="dev__location">{{ profile.postal_code }}</p>
 
-            <p class="dev__location"><b>Numer te.:</b></p>
+            <p class="dev__location"><b>Numer telefonu:</b></p>
             <p class="dev__location">{{profile.phone_number}}</p>
 
             <a class="tag tag--pill tag--main settings__btn tag--lg" href="{% url 'edit_account' %}">Edytuj profil</a>
@@ -70,8 +70,23 @@
           </div>
         </form>
       
-        <div class="devInfo">
-          <h3 class="devInfo__title">Historia twoich wniosków:</h3>
+        <h3 class="devInfo__title">Historia twoich wniosków:</h3>
+        <div class="request_history">
+          {% for request in requests_history %}
+            <div class="card text-center"
+              {% if request.status == '1' %}    style="background-color:#FFCF87" 
+              {% elif request.status == '2' %}  style="background-color:#57BC84"
+              {% else %}                        style="background-color:#FF8787"
+              {% endif %}
+            >
+              <div class="cart__card">
+                <p class="cart__p"> Data rozpoczęcia: <b>{{ request.start_date|date:"d.m.Y" }}</b></p>
+                <p class="cart__p"> Data zakończenia: <b>{{ request.end_date|date:"d.m.Y" }}</b></p>
+                <p class="cart__p"> Typ urlopu: <b>{{ request.get_leave_type_display }}</b></p>
+                <p class="cart__p"> Status: <b>{{ request.get_status_display }}</b></p>
+              </div>
+            </div>
+          {% endfor %}
         </div>
       </div>
     </div>

@@ -11,12 +11,14 @@ def User_leave_requests(request):
     user = request.user
     profile = user.profile
     form = LeaveRequestForm()
+    requests_history = Leave_request.objects.filter(user=user).order_by('-start_date')
 
     if request.method == 'POST':
         form = LeaveRequestForm(request.POST)
         if form.is_valid():
             leave_request = form.save(commit=False)
             leave_request.user = user
+            
 
             # Pobranie danych z formularza
             start_date = form.cleaned_data['start_date']
@@ -58,11 +60,13 @@ def User_leave_requests(request):
             leave_request.num_of_days = num_days_requested
             leave_request.save()
             messages.success(request, 'Wniosek urlopowy został złożony.')
+            requests_history = Leave_request.objects.filter(user=user).order_by('-start_date')
             return redirect('User_leave_requests')
 
     context = {
         'form': form,
         'user': user,
-        'profile': profile
+        'profile': profile,
+        'requests_history': requests_history,
     }
     return render(request, 'Leave_requests/user_leave_requests.html', context)

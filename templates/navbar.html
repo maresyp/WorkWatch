@@ -16,7 +16,7 @@
             <ul class="header__menu">
                 {% if request.user.is_authenticated %}
                     <li class="header__menuItem">
-                        <a {% if request.resolver_match.url_name == 'user_leave_requests' %}style="color: var(--color-main-light);"{% endif %}href="{% url 'User_leave_requests' %}">Wnioski urlopowe</a>
+                        <a {% if request.resolver_match.url_name == 'User_leave_requests' %}style="color: var(--color-main-light);"{% endif %}href="{% url 'User_leave_requests' %}">Wnioski urlopowe</a>
                     </li>
                     <li class="header__menuItem">
                         <a {% if request.resolver_match.url_name == 'edit_account' %}style="color: var(--color-main-light);"{% endif %}href="{% url 'edit_account' %}">Harmonogram pracy</a>
