@@ -2,3 +2,4 @@ tox
 tox-gh-actions
 ruff
 mypy
+faker
