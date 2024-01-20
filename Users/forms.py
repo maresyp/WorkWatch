@@ -11,7 +11,7 @@ class ProfileForm(ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['city', 'street', 'house_number', 'postal_code', 'profile_image', 'phone_number', 'gender']
+        fields = ['profile_image', 'city', 'street', 'house_number', 'postal_code', 'phone_number', 'gender']
         labels = {
             'profile_image': 'Zdjęcie profilowe',
             'city': 'Miasto',

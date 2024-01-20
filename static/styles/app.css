@@ -443,10 +443,9 @@ img {
 
 .cart__card {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
     align-items: center;
-    justify-content: space-between;
-    margin-left: 1rem;
-    margin-right: 1rem;
 }
 
 .cart__buttons {
@@ -457,9 +456,22 @@ img {
 }
 
 .cart__p {
-    font-size: 1.75rem;
-    font-weight: 600;
+    flex-basis: calc(50% - 0.625rem);
+    margin: 0;
+    padding: 0.3125rem;
+    text-align: center;
+    display: flex;
     color: var(--color-sub);
+    white-space: pre-wrap;
+}
+
+.request_history {
+    margin-bottom: 3rem;
+    display: block;
+    width: 100%;
+    height: fit-content;
+    max-height: 25rem;
+    overflow-y: auto;
 }
 
 /*=======================
@@ -1212,4 +1224,11 @@ img {
 
 .tag-button.hidden {
     visibility: hidden;
+}
+
+.leave_request_p {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 45rem;
 }
