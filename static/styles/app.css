@@ -1213,3 +1213,10 @@ img {
 .tag-button.hidden {
     visibility: hidden;
 }
+
+.leave_request_p {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 45rem;
+}

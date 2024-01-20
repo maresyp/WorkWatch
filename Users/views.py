@@ -12,7 +12,7 @@ def login_user(request):
     page = 'login'
 
     if request.user.is_authenticated:
-        return redirect('user_leave_requests')
+        return redirect('User_leave_requests')
 
     if request.method == 'POST':
         username = request.POST['username'].lower()
@@ -27,7 +27,7 @@ def login_user(request):
 
         if user is not None:
             login(request, user)
-            return redirect(request.GET['next'] if 'next' in request.GET else 'user_leave_requests')
+            return redirect(request.GET['next'] if 'next' in request.GET else 'User_leave_requests')
 
         messages.error(request, 'Nazwa użytkownika lub hasło jest niepoprawne.')
 

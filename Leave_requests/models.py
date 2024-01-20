@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -17,11 +18,12 @@ class Leave_request(models.Model):
         ('4', 'Urlop z powodu siły wyższej'),
     ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    id = models.UUIDField(default = uuid.uuid4, unique=True, primary_key=True, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='1')
     leave_type = models.CharField(max_length=1, choices=LEAVE_TYPE_CHOICES, default='1')
     start_date = models.DateTimeField(default=timezone.now)
-    num_of_days = models.IntegerField()
+    end_date = models.DateTimeField()
 
     def __str__(self) -> str:
         return str(self.user)
