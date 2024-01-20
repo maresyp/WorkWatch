@@ -12,7 +12,7 @@ def login_user(request):
     page = 'login'
 
     if request.user.is_authenticated:
-        return redirect('account')
+        return redirect('user_leave_requests')
 
     if request.method == 'POST':
         username = request.POST['username'].lower()
@@ -27,7 +27,7 @@ def login_user(request):
 
         if user is not None:
             login(request, user)
-            return redirect(request.GET['next'] if 'next' in request.GET else 'account')
+            return redirect(request.GET['next'] if 'next' in request.GET else 'user_leave_requests')
 
         messages.error(request, 'Nazwa użytkownika lub hasło jest niepoprawne.')
 
@@ -40,20 +40,6 @@ def logout_user(request):
     logout(request)
     messages.info(request, 'Pomyślnie wylogowano!')
     return redirect('login')
-
-@login_required(login_url='login')
-def user_account(request):
-    page = 'account'
-    user = request.user
-    profile = request.user.profile
-
-    context = {
-        'user': user,
-        'profile': profile,
-        'page': page,
-    }
-    return render(request, 'Users/account.html', context)
-
 
 @login_required(login_url='login')
 def edit_account(request):

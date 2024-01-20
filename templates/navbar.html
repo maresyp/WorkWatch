@@ -16,8 +16,14 @@
             <ul class="header__menu">
                 {% if request.user.is_authenticated %}
                     <li class="header__menuItem">
-                        <a {% if request.resolver_match.url_name == 'account' %}style="color: var(--color-main-light);"{% endif %}
-                        href="{% url 'account' %}">Moje konto</a></li>
+                        <a {% if request.resolver_match.url_name == 'user_leave_requests' %}style="color: var(--color-main-light);"{% endif %}href="{% url 'user_leave_requests' %}">Wnioski urlopowe</a>
+                    </li>
+                    <li class="header__menuItem">
+                        <a {% if request.resolver_match.url_name == 'edit_account' %}style="color: var(--color-main-light);"{% endif %}href="{% url 'edit_account' %}">Harmonogram pracy</a>
+                    </li>
+                    <li class="header__menuItem">
+                        <a {% if request.resolver_match.url_name == 'edit_account' %}style="color: var(--color-main-light);"{% endif %}href="{% url 'edit_account' %}">Moje konto</a>
+                    </li>
                     <li class="header__menuItem"><a href="{% url 'logout' %}" class="btn btn--main">Wyloguj</a></li>
                 {% endif %}
             </ul>
