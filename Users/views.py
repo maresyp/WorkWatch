@@ -55,8 +55,6 @@ def edit_account(request):
             if profile_form.is_valid():
                 email = profile_form.cleaned_data['email'].lower()
 
-                # ToDo: System will set default user avatar if user deletes its current
-
                 if profile_form.instance.user and User.objects.exclude(id=profile_form.instance.user.id).filter(
                         email=email).exists():
                     profile_form.add_error('email', "Podany adres e-mail jest już w użyciu.")

@@ -1232,3 +1232,16 @@ img {
     justify-content: space-between;
     width: 45rem;
 }
+
+.add_user_ico
+{
+    position: absolute;
+    margin-inline: -4rem;
+    background-color: var(--color-sub-light);
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-wrap: wrap;
+    font-size: 3rem;
+    z-index: 111;
+}
