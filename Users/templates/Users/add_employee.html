@@ -1,0 +1,51 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block content %}
+
+<div class="auth">
+    <div class="card">
+        <div class="auth__header__heart">
+            <p></p>
+        </div>
+        
+        <div class="auth__header text-center">
+            <h3>Zarejestruj konto</h3>
+        </div>
+
+        <form method="POST" action="{% url 'add_employee' %}" class="form auth__form">
+            {% csrf_token %}
+
+            {% for field in user_form %}
+            <div class="form__field">
+                <label for="formInput#text">{{field.label}}</label>
+                {{field}}
+
+                {% for error in field.errors %}
+                <p style="color: red;">{{error}}</p>
+                {% endfor %}
+
+            </div>
+
+            {% endfor %}
+
+            {% for field in profile_form %}
+            <div class="form__field">
+                <label for="formInput#text">{{field.label}}</label>
+                {{field}}
+
+                {% for error in field.errors %}
+                <p style="color: red;">{{error}}</p>
+                {% endfor %}
+
+            </div>
+
+            {% endfor %}
+
+            <div class="auth__actions">
+                <input class="btn btn--main btn--lg" type="submit" value="Dodaj pracownika" />
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

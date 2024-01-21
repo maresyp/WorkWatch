@@ -1,12 +1,10 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
-from datetime import datetime
+from WorkWatch.decorators import non_manager_required, manager_required
 from .models import Leave_request
-from Users.models import Profile
 from .forms import LeaveRequestForm
 
-@login_required(login_url='login')
+@non_manager_required(login_url='login')
 def User_leave_requests(request):
     user = request.user
     profile = user.profile
@@ -18,7 +16,6 @@ def User_leave_requests(request):
         if form.is_valid():
             leave_request = form.save(commit=False)
             leave_request.user = user
-            
 
             # Pobranie danych z formularza
             start_date = form.cleaned_data['start_date']

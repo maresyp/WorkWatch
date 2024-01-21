@@ -823,10 +823,11 @@ img {
     position: relative;
     z-index: 1;
     background: transparent;
-    height: 99vh;
+    height: fit-content;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-top: 6rem;
 }
 
 .auth::after {
@@ -1231,4 +1232,17 @@ img {
     align-items: center;
     justify-content: space-between;
     width: 45rem;
+}
+
+.add_user_ico
+{
+    position: absolute;
+    margin-inline: -4rem;
+    background-color: var(--color-sub-light);
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-wrap: wrap;
+    font-size: 3rem;
+    z-index: 111;
 }

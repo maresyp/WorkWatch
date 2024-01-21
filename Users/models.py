@@ -28,7 +28,6 @@ class Profile(models.Model):
     parental_leave = models.IntegerField(default=5)
     force_majeure_leave = models.IntegerField(default=2)
 
-    is_manager = models.BooleanField(default=False)
     contract_type = models.CharField(max_length=1, choices=CONTRACT_TYPE_CHOICES, default='1')
     
 

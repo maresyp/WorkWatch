@@ -3,12 +3,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
+from WorkWatch.decorators import manager_required
 
-from .forms import ChangePasswordForm, ProfileForm
+from .forms import ChangePasswordForm, CustomUserCreationForm, ProfileCreationForm, ProfileForm
 
 
 def login_user(request):
-
     page = 'login'
 
     if request.user.is_authenticated:
@@ -56,8 +56,6 @@ def edit_account(request):
             if profile_form.is_valid():
                 email = profile_form.cleaned_data['email'].lower()
 
-                # ToDo: System will set default user avatar if user deletes its current
-
                 if profile_form.instance.user and User.objects.exclude(id=profile_form.instance.user.id).filter(
                         email=email).exists():
                     profile_form.add_error('email', "Podany adres e-mail jest już w użyciu.")
@@ -91,3 +89,46 @@ def edit_account(request):
     }
 
     return render(request, 'Users/user_profile_form.html', context)
+
+@manager_required(login_url='login')
+def add_employee(request):
+    page = 'register'
+    user_form = CustomUserCreationForm()
+    profile_form = ProfileCreationForm()
+
+    if request.method == 'POST':
+        user_form = CustomUserCreationForm(request.POST)
+        profile_form = ProfileCreationForm(request.POST)
+        if user_form.is_valid() and profile_form.is_valid():
+            email = user_form.cleaned_data['email'].lower()
+            username = user_form.cleaned_data['last_name'] + user_form.cleaned_data['first_name'][0].lower()
+
+            counter = 1
+            base_username = username  # Zapamiętaj bazowy username
+            while User.objects.filter(username=username).exists():
+                username = base_username + str(counter)
+                counter += 1
+            
+            user = user_form.save(commit=False)
+            user.email = user.email.lower()
+            user.username = username
+
+            # Check if user with the same email already exists
+            if User.objects.filter(email=email).exists():
+                user_form.add_error('email', 'Ten adres email jest już w użyciu.')
+            else:
+                user.save()
+
+                profile = user.profile
+                profile.contract_type = profile_form.cleaned_data['contract_type']
+                if profile.contract_type == '2':
+                    profile.available_leave = 13
+                profile.save()
+
+                messages.success(request, 'Konto pracownika zostało utworzone!')
+                return redirect('add_employee')
+        else:
+            messages.error(request, 'Wystąpił problem podczas rejestracji')
+
+    context = {'page': page, 'user_form': user_form, 'profile_form': profile_form}
+    return render(request, 'Users/add_employee.html', context)

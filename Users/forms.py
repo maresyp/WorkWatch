@@ -67,3 +67,39 @@ class ChangePasswordForm(Form):
         if commit:
             self.user.save()
         return self.user
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = [
+            'first_name',
+            'last_name',
+            'email',
+            'password1',
+            'password2',
+            ]
+        labels = {
+            'first_name': 'Imię',
+            'last_name': 'Nazwisko',
+            'email': 'Adres e-mail',
+            'password1': 'Hasło',
+            'password2': 'Powtórz hasło',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(CustomUserCreationForm, self).__init__(*args, **kwargs)
+
+        for name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'input'})
+
+class ProfileCreationForm(ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['contract_type']
+        labels = {'contract_type': 'Rodzaj etatu'}
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileCreationForm, self).__init__(*args, **kwargs)
+
+        for name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'input'})
