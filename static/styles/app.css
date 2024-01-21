@@ -823,10 +823,11 @@ img {
     position: relative;
     z-index: 1;
     background: transparent;
-    height: 99vh;
+    height: fit-content;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-top: 6rem;
 }
 
 .auth::after {

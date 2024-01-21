@@ -18,7 +18,11 @@
                 {% if request.user.is_authenticated %}
                     {% if request.user|has_group:"Managers" %}
                         <li class="avatar avatar--sm dev__avatar add_user_ico"/>&#128119;</li>
-                        <li class="header__menuItem"><a href="" class="btn btn--add_user" style="color:#299ad7;">+</a></li>
+                        {% if request.resolver_match.url_name == 'add_employee' %}
+                        <li class="header__menuItem"><a href="{% url 'add_employee' %}" class="btn btn--add_user" style="background-color:#299ad7; color:#e5e7eb;">+</a></li>
+                        {% else %}
+                        <li class="header__menuItem"><a href="{% url 'add_employee' %}" class="btn btn--add_user" style="color:#299ad7;">+</a></li>
+                        {% endif %}
                     {% endif %}
 
                     <li class="header__menuItem">
