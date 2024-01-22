@@ -3,6 +3,51 @@
 {% block content %}
 
 <!-- Main Section -->
-<h1>Hello world!</h1>
+
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        grid-gap: 10px;
+    }
+    .card {
+        background-color: #299AD7;
+        color: white !important;
+    }
+    .card_free {
+        background-color: #57BC84;
+        color: white !important;
+    }
+    .card_request {
+        background-color: #FFCF87;
+        color: white !important;
+    }
+</style>
+
+<main class="settingsPage profile my-xl">
+    <div class="grid-container">
+        {% for date, info in schedule.items %}
+            {% if info.on_leave %}
+            <div class="card card_request text-center">
+                <p>{{ date|date:"j" }}</p>
+                <p>{{ info.weekday }}</p>
+                <p>Urlop</p>
+            </div>
+            {% elif info.weekday == 'Saturday' or info.weekday == 'Sunday' %}
+            <div class="card card_free text-center">
+                <p>{{ date|date:"j" }}</p>
+                <p>{{ info.weekday }}</p>
+                <p>Wolne</p>
+            </div>
+            {% else %}
+            <div class="card text-center">
+                <p>{{ date|date:"j" }}</p>
+                <p>{{ info.weekday }}</p>
+                <p>Godziny pracy: {{ info.start_time }} - {{ info.end_time }}</p>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+  </main>
 
 {% endblock %}
