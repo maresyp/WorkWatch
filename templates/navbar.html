@@ -29,7 +29,11 @@
                         <a {% if request.resolver_match.url_name == 'User_leave_requests' %}style="color: var(--color-main-light);"{% endif %}href="{% url 'User_leave_requests' %}">Wnioski urlopowe</a>
                     </li>
                     <li class="header__menuItem">
-                        <a {% if request.resolver_match.url_name == 'edit_account' %}style="color: var(--color-main-light);"{% endif %}href="{% url 'edit_account' %}">Harmonogram pracy</a>
+                        {% if request.user|has_group:"Managers" %}
+                            <a {% if request.resolver_match.url_name == 'manager_schedules' %}style="color: var(--color-main-light);"{% endif %}href="{% url 'manager_schedules' %}">Harmonogram pracy</a>
+                        {% else %}
+                            <a {% if request.resolver_match.url_name == 'user_schedule' %}style="color: var(--color-main-light);"{% endif %}href="{% url 'user_schedule' %}">Harmonogram pracy</a>
+                        {% endif %}
                     </li>
                     <li class="header__menuItem">
                         <a {% if request.resolver_match.url_name == 'edit_account' %}style="color: var(--color-main-light);"{% endif %}href="{% url 'edit_account' %}">Moje konto</a>

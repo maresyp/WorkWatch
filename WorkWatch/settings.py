@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'Users.apps.UsersConfig',
     'Leave_requests.apps.LeaveRequestsConfig',
+    'schedules.apps.SchedulesConfig',
 ]
 
 MIDDLEWARE = [
