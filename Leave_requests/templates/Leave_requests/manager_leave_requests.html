@@ -8,7 +8,7 @@
     <div class="layout">
       <div class="column column--1of3">
         <div class="card text-center">
-          <div class="card__body dev">
+          <div class="card__body dev" style="max-height:70rem; overflow-y: auto;">
             {% for user in users_with_pending_requests %}
             <div class="userCard">
               <img style="margin: 0rem; z-index: 111; background-color: white;" class="avatar avatar--md dev__avatar" src="{{ user.profile.imageURL }}" alt="Profile_logo"/>

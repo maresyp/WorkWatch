@@ -118,13 +118,15 @@ def accept_leave_request(request, request_id):
     leave_request = get_object_or_404(Leave_request, pk=request_id)
     leave_request.status = '2'  # Status 'zaakceptowany'
     leave_request.save()
+    user_id = leave_request.user.id
     messages.success(request, 'Wniosek urlopowy został zaakceptowany.')
-    return redirect('Manager_leave_requests')
+    return redirect('Manager_leave_requests', user_id=user_id)
 
 @manager_required(login_url='login')
 def decline_leave_request(request, request_id):
     leave_request = get_object_or_404(Leave_request, pk=request_id)
     leave_request.status = '3'  # Status 'odrzucony'
     leave_request.save()
+    user_id = leave_request.user.id
     messages.error(request, 'Wniosek urlopowy został odrzucony.')
-    return redirect('Manager_leave_requests')
+    return redirect('Manager_leave_requests', user_id=user_id)

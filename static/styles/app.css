@@ -1258,7 +1258,7 @@ img {
 
 .userCard__text {
     margin-left: 2rem;
-    width: 100%;
+    width: 25rem;
     background-color: var(--color-bg);
     border: 2px solid var(--color-main-light);
     border-radius: 1rem;
