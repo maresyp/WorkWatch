@@ -3,6 +3,76 @@
 {% block content %}
 
 <!-- Main Section -->
-<h1>Hello world manager!</h1>
+<main class="settingsPage profile my-xl">
+  <div class="container">
+    <div class="layout">
+      <div class="column column--1of3">
+        <div class="card text-center">
+          <div class="card__body dev" style="max-height:70rem; overflow-y: auto;">
+            {% for user in users %}
+            <div class="userCard">
+              <img style="margin: 0rem; z-index: 111; background-color: white;" class="avatar avatar--md dev__avatar" src="{{ user.profile.imageURL }}" alt="Profile_logo"/>
+              <a href="{% url 'manager_schedules' user.id %}" style="width: -webkit-fill-available;">
+                <div class="userCard__text">
+                  <p style="color:black;"><b>{{ user.first_name }} {{ user.last_name }}</b></p>
+                  <p style="color:black;">{{ user.username }}</p>
+                </div>
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="column column--2of3">
+        <div class="userCard">
+            <img style="margin: 0rem; z-index: 111; background-color: white;" class="avatar avatar--md dev__avatar" src="{{ profile.imageURL }}" alt="Profile_logo"/>
+              <div class="userCard__text">
+                <p style="color:black;"><b>{{ profile.user.first_name }} {{ profile.user.last_name }}</b></p>
+                <p style="color:black;">{{ profile.user.username }}</p>
+              </div>
+            </a>
+          </div>
+
+        {% if not schedule %}
+        <h1>To konto nie ma jeszcze przypisanego harmonogramu</h1>
+        {% else %}
+        <h3>{{ schedule.date|date:"F Y" }}</h3>
+        <a href="{% url 'manager_schedules' selected_user.id schedule.id 'previous' %}">prev</a>
+        <a href="{% url 'manager_schedules' selected_user.id schedule.id 'next' %}">next</a>
+        <div class="grid-container">
+            {% for date, info in schedule_display.items %}
+                {% if info.on_leave %}
+                <div class="card card_request text-center">
+                    <p>{{ date|date:"j" }}</p>
+                    <p>{{ info.weekday }}</p>
+                    <p>Urlop</p>
+                    <br>
+                </div>
+                {% elif info.weekday == 'Sobota' or info.weekday == 'Niedziela' %}
+                <div class="card card_free text-center">
+                    <p>{{ date|date:"j" }}</p>
+                    <p>{{ info.weekday }}</p>
+                    <p>Wolne</p>
+                    <br>
+                </div>
+                {% else %}
+                <div class="card text-center">
+                    <p>{{ date|date:"j" }}</p>
+                    <p>{{ info.weekday }}</p>
+                    {% if info.start_time %}
+                        <p>Godziny pracy:<br> {{ info.start_time }} - {{ info.end_time }}</p>
+                    {% else %}
+                        <p>Godziny pracy:<br> Brak</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+  </div>
+</main>
 
 {% endblock %}

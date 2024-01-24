@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 
 from dateutil.relativedelta import relativedelta
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import Http404, HttpResponse
@@ -75,11 +76,8 @@ def user_schedule(request, schedule: uuid.UUID | None = None) -> HttpResponse:
     context = prepare_schedule_info(request.user, schedule_id=schedule)
     return render(request, 'schedules/user_schedule.html', context=context)
 
-@non_manager_required()
-def user_schedule_navigation(request, schedule: uuid.UUID, direction: str) -> HttpResponse:
-    current_schedule = get_object_or_404(Schedule, id=schedule)
-    if (current_schedule.user != request.user):
-        raise PermissionDenied
+def navigate_to_schedule(user: User, schedule_id: uuid.UUID, direction: str) -> Schedule | None:
+    current_schedule = get_object_or_404(Schedule, id=schedule_id)
 
     if direction == 'next':
         date = current_schedule.date + relativedelta(months=1)
@@ -89,17 +87,67 @@ def user_schedule_navigation(request, schedule: uuid.UUID, direction: str) -> Ht
         msg = "Invalid direction"
         raise Http404(msg)
 
-    next_schedule = Schedule.objects.filter(
-        Q(user=request.user)
+    return Schedule.objects.filter(
+        Q(user=user)
         & Q(date__month=date.month)
         & Q(date__year=date.year)).first()
 
-    if not next_schedule:
-        messages.error(request, f"Harmonogram dla {date.strftime('%m-%Y')} jeszcze nie istnieje.")
-        return redirect('user_schedule', schedule=current_schedule.id)
+@non_manager_required()
+def user_schedule_navigation(request, schedule: uuid.UUID, direction: str) -> HttpResponse:
 
+    next_schedule = navigate_to_schedule(request.user, schedule, direction)
+
+    if not next_schedule:
+        messages.error(
+            request,
+            f"Harmonogram dla {'następnego' if direction=='next' else 'poprzedniego'} miesiąca jeszcze nie istnieje.")
+        return redirect('user_schedule', schedule=schedule)
+
+    if (next_schedule.user != request.user):
+        raise PermissionDenied
     return redirect('user_schedule', schedule=next_schedule.id)
 
 @manager_required()
-def manager_schedules(request) -> HttpResponse:
-    return render(request, 'schedules/manager_schedules.html')
+def manager_schedules(
+    request,
+    user_id: int | None = None,
+    schedule_id: uuid.UUID | None = None,
+    direction: str | None = None,
+    ) -> HttpResponse:
+    context: dict = {
+        'users': None,
+        'selected_user': None,
+        'schedule': None,
+        'profile': None,
+    }
+
+    context['users'] = User.objects.exclude(groups__name="Managers")
+    current_date: datetime = datetime.now(tz=UTC)
+
+    if user_id is None: # Assign default values for context
+        context['selected_user'] = context['users'].first()
+        context['profile'] = context['users'].first().profile
+
+        # get schedule for current user for current month
+        context['schedule'] = Schedule.objects.filter(
+            Q(user=context['users'].first())
+            & Q(date__month=current_date.month)
+            & Q(date__year=current_date.year)).first()
+
+        return render(request, 'schedules/manager_schedules.html', context=context)
+
+    context['selected_user'] = context['users'].filter(id=user_id).first()
+    context['schedule'] = Schedule.objects.filter(
+        Q(user=context['selected_user'])
+        & Q(date__month=current_date.month)
+        & Q(date__year=current_date.year)).first()
+    context['profile'] = context['selected_user'].profile
+
+    if direction is not None:
+        next_schedule = navigate_to_schedule(context['selected_user'], schedule_id, direction)
+        if direction == 'previous' and next_schedule is None:
+            messages.error(request, "Brak poprzedzającego harmonogramu")
+        else:
+            context['schedule'] = next_schedule
+
+    return render(request, 'schedules/manager_schedules.html', context=context)
