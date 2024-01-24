@@ -12,7 +12,10 @@ def login_user(request):
     page = 'login'
 
     if request.user.is_authenticated:
-        return redirect('User_leave_requests')
+        if request.user.groups.filter(name='Managers').exists():
+            return redirect('Manager_leave_requests')
+        else:
+            return redirect('User_leave_requests')
 
     if request.method == 'POST':
         username = request.POST['username'].lower()
@@ -27,7 +30,10 @@ def login_user(request):
 
         if user is not None:
             login(request, user)
-            return redirect(request.GET['next'] if 'next' in request.GET else 'User_leave_requests')
+            if user.groups.filter(name='Managers').exists():
+                return redirect(request.GET['next'] if 'next' in request.GET else 'Manager_leave_requests')
+            else:
+                return redirect(request.GET['next'] if 'next' in request.GET else 'User_leave_requests')
 
         messages.error(request, 'Nazwa użytkownika lub hasło jest niepoprawne.')
 
@@ -101,10 +107,10 @@ def add_employee(request):
         profile_form = ProfileCreationForm(request.POST)
         if user_form.is_valid() and profile_form.is_valid():
             email = user_form.cleaned_data['email'].lower()
-            username = user_form.cleaned_data['last_name'] + user_form.cleaned_data['first_name'][0].lower()
+            username = user_form.cleaned_data['last_name'] + user_form.cleaned_data['first_name'][0]
 
             counter = 1
-            base_username = username  # Zapamiętaj bazowy username
+            base_username = username.lower()
             while User.objects.filter(username=username).exists():
                 username = base_username + str(counter)
                 counter += 1

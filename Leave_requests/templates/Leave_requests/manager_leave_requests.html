@@ -1,0 +1,111 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<!-- Main Section -->
+<main class="settingsPage profile my-xl">
+  <div class="container">
+    <div class="layout">
+      <div class="column column--1of3">
+        <div class="card text-center">
+          <div class="card__body dev" style="max-height:70rem; overflow-y: auto;">
+            {% for user in users_with_pending_requests %}
+            <div class="userCard">
+              <img style="margin: 0rem; z-index: 111; background-color: white;" class="avatar avatar--md dev__avatar" src="{{ user.profile.imageURL }}" alt="Profile_logo"/>
+              <a href="{% url 'Manager_leave_requests' user.id %}" style="width: -webkit-fill-available;">
+                <div div style="background-color:#FFCF87;" class="userCard__text">
+                  <p style="color:black;"><b>{{ user.first_name }} {{ user.last_name }}</b></p>
+                  <p style="color:black;">{{ user.username }}</p>
+                </div>
+              </a>
+            </div>
+            {% endfor %}
+
+            {% for user in users_without_requests %}
+            <div class="userCard">
+              <img style="margin: 0rem; z-index: 111; background-color: white;" class="avatar avatar--md dev__avatar" src="{{ user.profile.imageURL }}" alt="Profile_logo"/>
+              <a href="{% url 'Manager_leave_requests' user.id %}" style="width: -webkit-fill-available;">
+                <div class="userCard__text">
+                  <p style="color:black;"><b>{{ user.first_name }} {{ user.last_name }}</b></p>
+                  <p style="color:black;">{{ user.username }}</p>
+                </div>
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+
+      <div class="column column--2of3">
+        <div class="userCard">
+          <img style="margin: 0rem; z-index: 111; background-color: white;" class="avatar avatar--md dev__avatar" src="{{ profile.imageURL }}" alt="Profile_logo"/>
+          <a href="{% url 'Manager_leave_requests' user.id %}" style="width: -webkit-fill-available;">
+            <div class="userCard__text">
+              <p style="color:black;"><b>{{ profile.user.first_name }} {{ profile.user.last_name }}</b></p>
+              <p style="color:black;">{{ profile.user.username }}</p>
+            </div>
+          </a>
+        </div>
+
+        <div class="devInfo">
+          <h3 class="devInfo__title">Dostępny urlop: {{ profile.available_leave }} z {% if profile.contract_type == '1' %}26{% else %}13{% endif %} dni</h3>
+          <p class="devInfo__about">Urlop na żądanie: {{ profile.on_demand_leave }} z 4 dni</p>
+        </div>   
+        
+        <div class="devInfo">
+          <h3 class="devInfo__title">Dodatkowe urlopy:</h3>
+          <p class="devInfo__about">Urlop opiekuńczy: {{ profile.parental_leave }} z 5 dni</p>
+          <p class="devInfo__about">Urlop z powodu siły wyższej {{ profile.force_majeure_leave }} z 2 dni</p>
+        </div>
+
+        <h3 class="devInfo__title">Wnioski do rozpatrzenia:</h3>
+        <div class="request_history">
+          {% for request in pending_requests %}
+            <div class="card text-center"
+              {% if request.status == '1' %}    style="background-color:#FFCF87" 
+              {% elif request.status == '2' %}  style="background-color:#57BC84"
+              {% else %}                        style="background-color:#FF8787"
+              {% endif %}
+            >
+              <div class="cart__card">
+                <p class="cart__p"> Data rozpoczęcia: <b>{{ request.start_date|date:"d.m.Y" }}</b></p>
+                <p class="cart__p"> Data zakończenia: <b>{{ request.end_date|date:"d.m.Y" }}</b></p>
+                <p class="cart__p"> Typ urlopu: <b>{{ request.get_leave_type_display }}</b></p>
+                <div class="cart__buttons">
+                  <a href="{% url 'decline_leave_request' request.request_id %}" class="request__decline">X</a>
+                  <a href="{% url 'accept_leave_request' request.request_id %}" class="request__accept">V</a>
+                </div>
+              </div>
+            </div>
+          {% empty%}
+            <h3 class="devInfo__title">Brak wniosków...</h3>
+          {% endfor %}
+        </div>
+
+        <h3 class="devInfo__title">Historia wniosków pracownika:</h3>
+        <div class="request_history">
+          {% for request in requests_history %}
+            <div class="card text-center"
+              {% if request.status == '1' %}    style="background-color:#FFCF87" 
+              {% elif request.status == '2' %}  style="background-color:#57BC84"
+              {% else %}                        style="background-color:#FF8787"
+              {% endif %}
+            >
+              <div class="cart__card">
+                <p class="cart__p"> Data rozpoczęcia: <b>{{ request.start_date|date:"d.m.Y" }}</b></p>
+                <p class="cart__p"> Data zakończenia: <b>{{ request.end_date|date:"d.m.Y" }}</b></p>
+                <p class="cart__p"> Typ urlopu: <b>{{ request.get_leave_type_display }}</b></p>
+                <p class="cart__p"> Status: <b>{{ request.get_status_display }}</b></p>
+              </div>
+            </div>
+          {% empty%}
+            <h3 class="devInfo__title">Brak wniosków...</h3>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% endblock %}

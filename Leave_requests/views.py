@@ -1,5 +1,6 @@
+from django.contrib.auth.models import User, Group
 from django.contrib import messages
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from WorkWatch.decorators import non_manager_required, manager_required
 from .models import Leave_request
 from .forms import LeaveRequestForm
@@ -67,3 +68,65 @@ def User_leave_requests(request):
         'requests_history': requests_history,
     }
     return render(request, 'Leave_requests/user_leave_requests.html', context)
+
+@manager_required(login_url='login')
+def Manager_leave_requests(request, user_id=None):
+    non_managers = User.objects.exclude(groups__name='Managers')
+
+    users_with_pending_requests = non_managers.filter(
+        leave_request__status='1'
+    ).order_by('last_name', 'first_name').distinct()
+
+    users_without_requests = non_managers.exclude(
+        leave_request__status='1'
+    ).order_by('last_name', 'first_name').distinct()
+
+    selected_user = None
+    profile = None
+    requests_history = None
+    pending_requests = None
+
+    if user_id:
+        selected_user = get_object_or_404(User, pk=user_id)
+    elif users_with_pending_requests.exists():
+        selected_user = users_with_pending_requests.first()
+    elif users_without_requests.exists():
+        selected_user = users_without_requests.first()
+
+    if selected_user:
+        profile = selected_user.profile
+        requests_history = Leave_request.objects.filter(
+            user=selected_user, 
+            status__in=['2', '3']
+        ).order_by('-start_date')
+        pending_requests = Leave_request.objects.filter(
+            user=selected_user, 
+            status='1'
+        ).order_by('start_date')
+
+    context = {
+        'users_with_pending_requests': users_with_pending_requests,
+        'users_without_requests': users_without_requests,
+        'profile': profile,
+        'requests_history': requests_history,
+        'pending_requests': pending_requests,
+    }
+    return render(request, 'Leave_requests/manager_leave_requests.html', context)
+
+@manager_required(login_url='login')
+def accept_leave_request(request, request_id):
+    leave_request = get_object_or_404(Leave_request, pk=request_id)
+    leave_request.status = '2'  # Status 'zaakceptowany'
+    leave_request.save()
+    user_id = leave_request.user.id
+    messages.success(request, 'Wniosek urlopowy został zaakceptowany.')
+    return redirect('Manager_leave_requests', user_id=user_id)
+
+@manager_required(login_url='login')
+def decline_leave_request(request, request_id):
+    leave_request = get_object_or_404(Leave_request, pk=request_id)
+    leave_request.status = '3'  # Status 'odrzucony'
+    leave_request.save()
+    user_id = leave_request.user.id
+    messages.error(request, 'Wniosek urlopowy został odrzucony.')
+    return redirect('Manager_leave_requests', user_id=user_id)
