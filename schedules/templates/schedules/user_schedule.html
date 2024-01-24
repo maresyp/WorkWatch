@@ -25,25 +25,33 @@
 </style>
 
 <main class="settingsPage profile my-xl">
+    <a href="{% url 'user_previous_schedule' schedule.id %}">prev</a>
+    <a href="{% url 'user_next_schedule' schedule.id %}">next</a>
     <div class="grid-container">
-        {% for date, info in schedule.items %}
+        {% for date, info in schedule_display.items %}
             {% if info.on_leave %}
             <div class="card card_request text-center">
                 <p>{{ date|date:"j" }}</p>
                 <p>{{ info.weekday }}</p>
                 <p>Urlop</p>
+                <br>
             </div>
             {% elif info.weekday == 'Saturday' or info.weekday == 'Sunday' %}
             <div class="card card_free text-center">
                 <p>{{ date|date:"j" }}</p>
                 <p>{{ info.weekday }}</p>
                 <p>Wolne</p>
+                <br>
             </div>
             {% else %}
             <div class="card text-center">
                 <p>{{ date|date:"j" }}</p>
                 <p>{{ info.weekday }}</p>
-                <p>Godziny pracy: {{ info.start_time }} - {{ info.end_time }}</p>
+                {% if info.start_time %}
+                    <p>Godziny pracy:<br> {{ info.start_time }} - {{ info.end_time }}</p>
+                {% else %}
+                    <p>Godziny pracy:<br> Brak</p>
+                {% endif %}
             </div>
             {% endif %}
         {% endfor %}
