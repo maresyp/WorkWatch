@@ -16,17 +16,18 @@ from .models import Schedule, ScheduleDay
 
 
 def prepare_schedule_info(user, schedule_id: uuid.UUID | None = None) -> dict:
-    current_date: datetime = datetime.now(tz=UTC)
     context: dict = {
         'schedule': None,
         'schedule_display': None,
     }
+
     if not schedule_id:
         # get schedule for current user for current month
+        date: datetime = datetime.now(tz=UTC)
         schedule = Schedule.objects.filter(
             Q(user=user)
-            & Q(date__month=current_date.month)
-            & Q(date__year=current_date.year))
+            & Q(date__month=date.month)
+            & Q(date__year=date.year))
     else:
         schedule = Schedule.objects.filter(id=schedule_id)
 
@@ -34,15 +35,16 @@ def prepare_schedule_info(user, schedule_id: uuid.UUID | None = None) -> dict:
     if not schedule: # early return if no schedule exists for given month
         return context
 
+    schedule_date = schedule.date
     # Get the last day of the current month
-    last_day = (current_date.replace(month=current_date.month+1, day=1) - timedelta(days=1)).day
+    last_day = (schedule_date.replace(month=schedule_date.month+1, day=1) - timedelta(days=1)).day
     schedule_display = {
         date: {
             'weekday': date_format(date, 'l', use_l10n=True),
             'start_time': None,
             'end_time': None,
             'on_leave': False}
-        for date in [datetime(year=current_date.year, month=current_date.month, day=i, tzinfo=UTC) for i in range(1, last_day+1)]
+        for date in [datetime(year=schedule_date.year, month=schedule_date.month, day=i, tzinfo=UTC) for i in range(1, last_day+1)]
         }
 
     scheduled_days = ScheduleDay.objects.filter(schedule=schedule)
@@ -54,8 +56,8 @@ def prepare_schedule_info(user, schedule_id: uuid.UUID | None = None) -> dict:
 
     leaves = Leave_request.objects.filter(
         Q(user=user)
-        & Q(start_date__month=current_date.month)
-        & Q(start_date__year=current_date.year)
+        & Q(start_date__month=schedule_date.month)
+        & Q(start_date__year=schedule_date.year)
         & Q(status='2'))
 
     for leave in leaves:
