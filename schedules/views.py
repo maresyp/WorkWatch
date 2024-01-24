@@ -100,10 +100,6 @@ def user_schedule_navigation(request, schedule: uuid.UUID, direction: str) -> Ht
 
     return redirect('user_schedule', schedule=next_schedule.id)
 
-@non_manager_required()
-def user_schedule_from_calendar(request, date: datetime):
-    pass
-
 @manager_required()
 def manager_schedules(request) -> HttpResponse:
     return render(request, 'schedules/manager_schedules.html')
