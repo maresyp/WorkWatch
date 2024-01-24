@@ -28,8 +28,8 @@
     {% if not schedule %}
     <h1>Twoje konto nie ma jeszcze przypisanego harmonogramu</h1>
     {% else %}
-    <a href="{% url 'user_previous_schedule' schedule.id %}">prev</a>
-    <a href="{% url 'user_next_schedule' schedule.id %}">next</a>
+    <a href="{% url 'user_schedule_navigation' schedule.id 'previous' %}">prev</a>
+    <a href="{% url 'user_schedule_navigation' schedule.id 'next' %}">next</a>
     <div class="grid-container">
         {% for date, info in schedule_display.items %}
             {% if info.on_leave %}

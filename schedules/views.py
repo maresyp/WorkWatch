@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from Leave_requests.models import Leave_request
@@ -73,12 +73,18 @@ def user_schedule(request, schedule: uuid.UUID | None = None) -> HttpResponse:
     return render(request, 'schedules/user_schedule.html', context=context)
 
 @non_manager_required()
-def user_previous_schedule(request, schedule: uuid.UUID) -> HttpResponse:
+def user_schedule_navigation(request, schedule: uuid.UUID, direction: str) -> HttpResponse:
     current_schedule = get_object_or_404(Schedule, id=schedule)
     if (current_schedule.user != request.user):
         raise PermissionDenied
 
-    date = current_schedule.date - relativedelta(months=1)
+    if direction == 'next':
+        date = current_schedule.date + relativedelta(months=1)
+    elif direction == 'previous':
+        date = current_schedule.date - relativedelta(months=1)
+    else:
+        msg = "Invalid direction"
+        raise Http404(msg)
 
     next_schedule = Schedule.objects.filter(
         Q(user=request.user)
@@ -87,26 +93,7 @@ def user_previous_schedule(request, schedule: uuid.UUID) -> HttpResponse:
 
     if not next_schedule:
         messages.error(request, f"Harmonogram dla {date.strftime('%m-%Y')} jeszcze nie istnieje.")
-        return redirect('user_schedule')
-
-    return redirect('user_schedule', schedule=next_schedule.id)
-
-@non_manager_required()
-def user_next_schedule(request, schedule: uuid.UUID) -> HttpResponse | None:
-    current_schedule = get_object_or_404(Schedule, id=schedule)
-    if (current_schedule.user != request.user):
-        raise PermissionDenied
-
-    date = current_schedule.date + relativedelta(months=1)
-
-    next_schedule = Schedule.objects.filter(
-        Q(user=request.user)
-        & Q(date__month=date.month)
-        & Q(date__year=date.year)).first()
-
-    if not next_schedule:
-        messages.error(request, f"Harmonogram dla {date.strftime('%m-%Y')} jeszcze nie istnieje.")
-        return redirect('user_schedule')
+        return redirect('user_schedule', schedule=current_schedule.id)
 
     return redirect('user_schedule', schedule=next_schedule.id)
 
