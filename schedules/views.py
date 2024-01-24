@@ -7,6 +7,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.formats import date_format
 
 from Leave_requests.models import Leave_request
 from WorkWatch.decorators import manager_required, non_manager_required
@@ -37,7 +38,7 @@ def prepare_schedule_info(user, schedule_id: uuid.UUID | None = None) -> dict:
     last_day = (current_date.replace(month=current_date.month+1, day=1) - timedelta(days=1)).day
     schedule_display = {
         date: {
-            'weekday': date.strftime('%A'),
+            'weekday': date_format(date, 'l', use_l10n=True),
             'start_time': None,
             'end_time': None,
             'on_leave': False}
@@ -96,6 +97,10 @@ def user_schedule_navigation(request, schedule: uuid.UUID, direction: str) -> Ht
         return redirect('user_schedule', schedule=current_schedule.id)
 
     return redirect('user_schedule', schedule=next_schedule.id)
+
+@non_manager_required()
+def user_schedule_from_calendar(request, date: datetime):
+    pass
 
 @manager_required()
 def manager_schedules(request) -> HttpResponse:
