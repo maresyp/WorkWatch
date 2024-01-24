@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'Users.apps.UsersConfig',
     'Leave_requests.apps.LeaveRequestsConfig',
+    'schedules.apps.SchedulesConfig',
 ]
 
 MIDDLEWARE = [
@@ -112,7 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pl'
 
 TIME_ZONE = 'UTC'
 

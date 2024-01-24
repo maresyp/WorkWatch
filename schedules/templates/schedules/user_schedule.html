@@ -1,0 +1,66 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<!-- Main Section -->
+
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        grid-gap: 10px;
+    }
+    .card {
+        background-color: #299AD7;
+        color: white !important;
+    }
+    .card_free {
+        background-color: #57BC84;
+        color: white !important;
+    }
+    .card_request {
+        background-color: #FFCF87;
+        color: white !important;
+    }
+</style>
+
+<main class="settingsPage profile my-xl">
+    {% if not schedule %}
+    <h1>Twoje konto nie ma jeszcze przypisanego harmonogramu</h1>
+    {% else %}
+    <h3>{{ schedule.date|date:"F Y" }}</h3>
+    <a href="{% url 'user_schedule_navigation' schedule.id 'previous' %}">prev</a>
+    <a href="{% url 'user_schedule_navigation' schedule.id 'next' %}">next</a>
+    <div class="grid-container">
+        {% for date, info in schedule_display.items %}
+            {% if info.on_leave %}
+            <div class="card card_request text-center">
+                <p>{{ date|date:"j" }}</p>
+                <p>{{ info.weekday }}</p>
+                <p>Urlop</p>
+                <br>
+            </div>
+            {% elif info.weekday == 'Sobota' or info.weekday == 'Niedziela' %}
+            <div class="card card_free text-center">
+                <p>{{ date|date:"j" }}</p>
+                <p>{{ info.weekday }}</p>
+                <p>Wolne</p>
+                <br>
+            </div>
+            {% else %}
+            <div class="card text-center">
+                <p>{{ date|date:"j" }}</p>
+                <p>{{ info.weekday }}</p>
+                {% if info.start_time %}
+                    <p>Godziny pracy:<br> {{ info.start_time }} - {{ info.end_time }}</p>
+                {% else %}
+                    <p>Godziny pracy:<br> Brak</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+  </main>
+
+{% endblock %}
