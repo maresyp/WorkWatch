@@ -1,9 +1,12 @@
 import uuid
 from datetime import UTC, datetime, timedelta
 
+from dateutil.relativedelta import relativedelta
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from Leave_requests.models import Leave_request
 from WorkWatch.decorators import manager_required, non_manager_required
@@ -12,7 +15,6 @@ from .models import Schedule, ScheduleDay
 
 
 def prepare_schedule_info(user, schedule_id: uuid.UUID | None = None) -> dict:
-    print(type(user))
     current_date: datetime = datetime.now(tz=UTC)
     context: dict = {
         'schedule': None,
@@ -66,17 +68,47 @@ def prepare_schedule_info(user, schedule_id: uuid.UUID | None = None) -> dict:
 
 # Create your views here.
 @non_manager_required()
-def user_schedule(request) -> HttpResponse:
-    context = prepare_schedule_info(request.user)
+def user_schedule(request, schedule: uuid.UUID | None = None) -> HttpResponse:
+    context = prepare_schedule_info(request.user, schedule_id=schedule)
     return render(request, 'schedules/user_schedule.html', context=context)
 
 @non_manager_required()
-def user_previous_schedule(request, schedule: uuid.uuid4) -> HttpResponse:
-    pass
+def user_previous_schedule(request, schedule: uuid.UUID) -> HttpResponse:
+    current_schedule = get_object_or_404(Schedule, id=schedule)
+    if (current_schedule.user != request.user):
+        raise PermissionDenied
+
+    date = current_schedule.date - relativedelta(months=1)
+
+    next_schedule = Schedule.objects.filter(
+        Q(user=request.user)
+        & Q(date__month=date.month)
+        & Q(date__year=date.year)).first()
+
+    if not next_schedule:
+        messages.error(request, f"Harmonogram dla {date.strftime('%m-%Y')} jeszcze nie istnieje.")
+        return redirect('user_schedule')
+
+    return redirect('user_schedule', schedule=next_schedule.id)
 
 @non_manager_required()
-def user_next_schedule(request, schedule: uuid.uuid4) -> HttpResponse:
-    pass
+def user_next_schedule(request, schedule: uuid.UUID) -> HttpResponse | None:
+    current_schedule = get_object_or_404(Schedule, id=schedule)
+    if (current_schedule.user != request.user):
+        raise PermissionDenied
+
+    date = current_schedule.date + relativedelta(months=1)
+
+    next_schedule = Schedule.objects.filter(
+        Q(user=request.user)
+        & Q(date__month=date.month)
+        & Q(date__year=date.year)).first()
+
+    if not next_schedule:
+        messages.error(request, f"Harmonogram dla {date.strftime('%m-%Y')} jeszcze nie istnieje.")
+        return redirect('user_schedule')
+
+    return redirect('user_schedule', schedule=next_schedule.id)
 
 @manager_required()
 def manager_schedules(request) -> HttpResponse:

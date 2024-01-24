@@ -25,6 +25,9 @@
 </style>
 
 <main class="settingsPage profile my-xl">
+    {% if not schedule %}
+    <h1>Twoje konto nie ma jeszcze przypisanego harmonogramu</h1>
+    {% else %}
     <a href="{% url 'user_previous_schedule' schedule.id %}">prev</a>
     <a href="{% url 'user_next_schedule' schedule.id %}">next</a>
     <div class="grid-container">
@@ -56,6 +59,7 @@
             {% endif %}
         {% endfor %}
     </div>
+    {% endif %}
   </main>
 
 {% endblock %}
