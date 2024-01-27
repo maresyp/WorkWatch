@@ -8,7 +8,12 @@
     <div class="layout">
       <div class="column column--1of3">
         <div class="card text-center">
+          <div class="search-container">
+            <input class="search__bar" type="text" id="search-box" placeholder="Szukaj pracownika...">
+          </div>
           <div class="card__body dev" style="max-height:70rem; overflow-y: auto;">
+            
+
             {% for user in users_with_pending_requests %}
             <div class="userCard">
               <img style="margin: 0rem; z-index: 111; background-color: white;" class="avatar avatar--md dev__avatar" src="{{ user.profile.imageURL }}" alt="Profile_logo"/>
@@ -108,4 +113,41 @@
   </div>
 </main>
 
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const searchBox = document.getElementById('search-box');
+    searchBox.addEventListener('keyup', function(e) {
+      const searchValue = e.target.value;
+  
+      // Wysyłanie zapytania AJAX przy każdej zmianie w polu wyszukiwania
+      fetch(`/search-users/?query=${searchValue}`)
+        .then(response => response.json())
+        .then(data => {
+          // Aktualizacja interfejsu użytkownika z otrzymanymi danymi
+          updateUI(data);
+        });
+    });
+  
+    function updateUI(users) {
+      const container = document.querySelector('.card__body');
+      container.innerHTML = ''; 
+    
+      users.forEach(user => {
+        const userCard = document.createElement('div');
+        userCard.className = 'userCard';
+        userCard.innerHTML = `
+          <img style="margin: 0rem; z-index: 111; background-color: white;" class="avatar avatar--md dev__avatar" src="${user.imageURL}" alt="Profile_logo"/>
+          <a href="/Manager_leave_requests/${user.id}" style="width: -webkit-fill-available;">
+            <div style="background-color:${user.has_request ? '#FFCF87' : 'inherit'};" class="userCard__text">
+              <p style="color:black;"><b>${user.first_name} ${user.last_name}</b></p>
+              <p style="color:black;">Username</p>
+            </div>
+          </a>
+        `;
+        container.appendChild(userCard);
+      });
+    }
+  });
+  </script>
 {% endblock %}
