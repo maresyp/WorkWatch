@@ -1299,13 +1299,3 @@ img {
     font-size: large;
     margin-bottom: 0.5rem;
 }
-
-.search__bar {
-    background-color: var(--color-bg);
-    width: 60%;
-    border: 2px solid var(--color-main-light);
-    border-radius: 2rem;
-    margin-top: 4rem;
-    height: 4rem;
-    padding: 2rem;
-}

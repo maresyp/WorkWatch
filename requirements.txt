@@ -8,4 +8,3 @@ whitenoise
 channels
 
 psycopg2-binary
-python-dateutil

@@ -1,8 +1,6 @@
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
-from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from django.db.models import Q
 from WorkWatch.decorators import non_manager_required, manager_required
 from .models import Leave_request
 from .forms import LeaveRequestForm
@@ -132,40 +130,3 @@ def decline_leave_request(request, request_id):
     user_id = leave_request.user.id
     messages.error(request, 'Wniosek urlopowy został odrzucony.')
     return redirect('Manager_leave_requests', user_id=user_id)
-
-def search_users(request):
-    query = request.GET.get('query', '')
-    non_managers = User.objects.exclude(groups__name='Managers')
-
-    if query:
-        results = non_managers.filter(
-            Q(first_name__icontains=query) | Q(last_name__icontains=query)
-        )
-    else:
-        results = non_managers
-
-    # Logika do segregowania użytkowników z wnioskami i bez
-    users_with_requests = results.filter(leave_request__status='1').distinct()
-    users_without_requests = results.exclude(leave_request__status='1').distinct()
-
-    data = []
-    # Najpierw dodajemy użytkowników z wnioskami
-    for user in users_with_requests:
-        data.append(get_user_data(user, has_request=True))
-    
-    # Następnie resztę użytkowników
-    for user in users_without_requests:
-        data.append(get_user_data(user, has_request=False))
-
-    return JsonResponse(data, safe=False)
-
-def get_user_data(user, has_request=False):
-    profile = user.profile if hasattr(user, 'profile') else None
-    imageURL = profile.imageURL if profile else ''
-    return {
-        'first_name': user.first_name,
-        'last_name': user.last_name,
-        'imageURL': imageURL,
-        'id': user,
-        'has_request': has_request  # Dodatkowe pole informujące o wniosku
-    }
