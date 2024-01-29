@@ -37,6 +37,13 @@ def prepare_schedule_info(user, schedule_id: uuid.UUID | None = None) -> dict:
         return context
 
     schedule_date = schedule.date
+    first_weekday_of_month = datetime(year=schedule_date.year, month=schedule_date.month, day=1, tzinfo=UTC).weekday()
+
+    #List of the empty days at the beggining of the html grid
+    blank_days = [''] * ((first_weekday_of_month) % 7)
+
+    context['blank_days'] = blank_days
+
     # Get the last day of the current month
     last_day = (schedule_date.replace(month=schedule_date.month+1, day=1) - timedelta(days=1)).day
     schedule_display = {

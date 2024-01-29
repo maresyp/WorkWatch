@@ -1299,3 +1299,34 @@ img {
     font-size: large;
     margin-bottom: 0.5rem;
 }
+
+/*=======================
+  Scheduler
+========================*/
+
+.month-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-gap: 10px;
+}
+.day_card {
+    background-color: var(--color-main-light);
+    color: white !important;
+}
+.day_card_free {
+    background-color: #57BC84;
+    color: white !important;
+}
+.day_card_request {
+    background-color: #FFCF87;
+    color: white !important;
+}
+
+.day_card > p,
+.day_card_free > p {
+    color: var(--color-white);
+}
+
+.day_card_request > p {
+    color: var(--color-sub);
+}
