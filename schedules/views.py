@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.formats import date_format
+from django.utils.timezone import make_aware, now
 
 from Leave_requests.models import Leave_request
 from WorkWatch.decorators import manager_required, non_manager_required
@@ -115,46 +116,83 @@ def user_schedule_navigation(request, schedule: uuid.UUID, direction: str) -> Ht
     return redirect('user_schedule', schedule=next_schedule.id)
 
 @manager_required()
-def manager_schedules(
-    request,
-    user_id: int | None = None,
-    schedule_id: uuid.UUID | None = None,
-    direction: str | None = None,
-    ) -> HttpResponse:
-    context: dict = {
-        'users': None,
+def manager_schedules(request, user_id: int | None = None, direction: str | None = None, date_str: str | None = None) -> HttpResponse:
+    current_date = datetime.now(tz=UTC)
+    context = {
+        'users': User.objects.exclude(groups__name="Managers"),
         'selected_user': None,
         'schedule': None,
         'profile': None,
+        'blank_days': [],
+        'schedule_display': None,
+        'displayed_date': current_date,
     }
 
-    context['users'] = User.objects.exclude(groups__name="Managers")
-    current_date: datetime = datetime.now(tz=UTC)
+    if user_id is not None:
+        selected_user = User.objects.filter(id=user_id).first()
+        if selected_user:
+            context['selected_user'] = selected_user
+            context['profile'] = selected_user.profile
 
-    if user_id is None: # Assign default values for context
-        context['selected_user'] = context['users'].first()
-        context['profile'] = context['users'].first().profile
+            if date_str:
+                displayed_date = datetime.strptime(date_str, '%Y-%m').replace(tzinfo=UTC)
+            else:
+                displayed_date = current_date
 
-        # get schedule for current user for current month
-        context['schedule'] = Schedule.objects.filter(
-            Q(user=context['users'].first())
-            & Q(date__month=current_date.month)
-            & Q(date__year=current_date.year)).first()
+            if direction == 'next':
+                displayed_date += relativedelta(months=1)
+            elif direction == 'previous':
+                displayed_date -= relativedelta(months=1)
 
-        return render(request, 'schedules/manager_schedules.html', context=context)
+            schedule = Schedule.objects.filter(
+                user=selected_user, 
+                date__month=displayed_date.month, 
+                date__year=displayed_date.year
+            ).first()
 
-    context['selected_user'] = context['users'].filter(id=user_id).first()
-    context['schedule'] = Schedule.objects.filter(
-        Q(user=context['selected_user'])
-        & Q(date__month=current_date.month)
-        & Q(date__year=current_date.year)).first()
-    context['profile'] = context['selected_user'].profile
-
-    if direction is not None:
-        next_schedule = navigate_to_schedule(context['selected_user'], schedule_id, direction)
-        if direction == 'previous' and next_schedule is None:
-            messages.error(request, "Brak poprzedzającego harmonogramu")
+            if schedule:
+                context.update(prepare_schedule_info(selected_user, schedule_id=schedule.id))
+            else:
+                context['displayed_date'] = displayed_date
         else:
-            context['schedule'] = next_schedule
+            messages.error(request, "Nie znaleziono wybranego użytkownika.")
+    else:
+        # Domyślne wartości, gdy nie jest wybrany żaden użytkownik
+        default_user = context['users'].first()
+        context.update({
+            'selected_user': default_user,
+            'profile': default_user.profile,
+            'schedule': prepare_schedule_info(default_user, schedule_id=None)['schedule']
+        })
 
     return render(request, 'schedules/manager_schedules.html', context=context)
+
+@manager_required()
+def create_schedule(request, user_id, date_str):
+    # Konwersja date_str na obiekt datetime
+    schedule_date = datetime.strptime(date_str, '%Y-%m')
+    schedule_date = make_aware(schedule_date)  # Ustawienie strefy czasowej
+
+    # Walidacja, czy data nie jest w przeszłości
+    current_date = now()
+    if schedule_date.year < current_date.year or (schedule_date.year == current_date.year and schedule_date.month < current_date.month):
+        messages.error(request, "Nie można utworzyć harmonogramu na miesiące, które już minęły.")
+        return redirect('manager_schedules', user_id=user_id)
+
+    # Pobranie użytkownika
+    user = get_object_or_404(User, id=user_id)
+
+    # Sprawdzenie, czy harmonogram już istnieje
+    existing_schedule = Schedule.objects.filter(user=user, date__year=schedule_date.year, date__month=schedule_date.month).first()
+    if existing_schedule:
+        messages.error(request, "Harmonogram dla tego użytkownika i miesiąca już istnieje.")
+        return redirect('manager_schedules', user_id=user_id)
+
+   # Tworzenie nowego harmonogramu
+    new_schedule = Schedule(user=user, date=schedule_date)
+    new_schedule.save()
+
+    messages.success(request, "Nowy harmonogram został utworzony.")
+
+    # Przekierowanie do widoku manager_schedules z utworzonym miesiącem
+    return redirect('manager_schedules_nav', user_id=user_id, direction='none', date_str=date_str)

@@ -35,29 +35,36 @@
           </div>
 
         {% if not schedule %}
-        <h1>To konto nie ma jeszcze przypisanego harmonogramu</h1>
+        <div style="display: flex; justify-content: space-between;">
+          <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'previous' displayed_date|date:"Y-m" %}">Poprzedni miesiąc</a>
+          <h3>{{ displayed_date|date:"F Y" }}</h3>
+          <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'next' displayed_date|date:"Y-m" %}">Następny miesiąc</a>
+        </div>
+        <button class="btn btn__main" onclick="location.href='{% url 'create_schedule' selected_user.id displayed_date|date:"Y-m" %}'">Utwórz harmonogram</button>
         {% else %}
-        <h3>{{ schedule.date|date:"F Y" }}</h3>
-        <a href="{% url 'manager_schedules' selected_user.id schedule.id 'previous' %}">prev</a>
-        <a href="{% url 'manager_schedules' selected_user.id schedule.id 'next' %}">next</a>
-        <div class="grid-container">
+        <div style="display: flex; justify-content: space-between;">
+          <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'previous' schedule.date|date:"Y-m" %}">Poprzedni miesiąc</a>
+          <h3>{{ schedule.date|date:"F Y" }}</h3>
+          <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'next' schedule.date|date:"Y-m" %}">Następny miesiąc</a>
+        </div>
+        <div class="month-container">
             {% for date, info in schedule_display.items %}
                 {% if info.on_leave %}
-                <div class="card card_request text-center">
+                <div class="card day_card_request text-center">
                     <p>{{ date|date:"j" }}</p>
                     <p>{{ info.weekday }}</p>
                     <p>Urlop</p>
                     <br>
                 </div>
                 {% elif info.weekday == 'Sobota' or info.weekday == 'Niedziela' %}
-                <div class="card card_free text-center">
+                <div class="card day_card_free text-center">
                     <p>{{ date|date:"j" }}</p>
                     <p>{{ info.weekday }}</p>
                     <p>Wolne</p>
                     <br>
                 </div>
                 {% else %}
-                <div class="card text-center">
+                <div class="day_card card text-center">
                     <p>{{ date|date:"j" }}</p>
                     <p>{{ info.weekday }}</p>
                     {% if info.start_time %}
