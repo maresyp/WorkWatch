@@ -1331,3 +1331,13 @@ img {
 .day_card_request > p {
     color: var(--color-sub);
 }
+
+.date_input {
+    background-color: var(--color-light);
+    color: var(--color-sub);
+    border-radius: 1rem;
+    border: 1px solid var(--color-sub);
+    margin: 0rem;
+    text-align: center;
+    width: 5rem;
+}

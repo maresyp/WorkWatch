@@ -10,6 +10,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.formats import date_format
 from django.utils.timezone import make_aware, now
+from django.db import transaction
 
 from Leave_requests.models import Leave_request
 from WorkWatch.decorators import manager_required, non_manager_required
@@ -196,3 +197,66 @@ def create_schedule(request, user_id, date_str):
 
     # Przekierowanie do widoku manager_schedules z utworzonym miesiącem
     return redirect('manager_schedules_nav', user_id=user_id, direction='none', date_str=date_str)
+
+
+
+@manager_required()
+def update_schedule(request, user_id, date_str):
+    if request.method == 'POST':
+        selected_user = get_object_or_404(User, id=user_id)
+        profile = selected_user.profile
+        schedule_date = datetime.strptime(date_str, '%Y-%m')
+        schedule_date = make_aware(schedule_date)
+
+        work_hours_start = 8
+        work_hours_end = 20
+        required_hours = 4 if profile.contract_type == '2' else 8
+
+        try:
+            with transaction.atomic():
+                # Znajdź lub utwórz obiekt Schedule dla danego użytkownika i daty
+                schedule, created = Schedule.objects.get_or_create(
+                    user=selected_user,
+                    date__year=schedule_date.year,
+                    date__month=schedule_date.month,
+                    defaults={'date': schedule_date}
+                )
+
+                # Iteruj przez dni miesiąca i zapisuj godziny pracy
+                for key, value in request.POST.items():
+                    if 'start_hour_' in key:
+                        day_str = key.split('_')[2]
+                        start_hour_str = request.POST.get(key, '')
+                        end_hour_str = request.POST.get(f'end_hour_{day_str}', '')
+
+                        if not start_hour_str or not end_hour_str:
+                            continue
+
+                        start_hour = int(start_hour_str)
+                        end_hour = int(end_hour_str)
+
+                        if start_hour < work_hours_start or end_hour > work_hours_end:
+                            raise ValueError(f"Godziny pracy muszą być między {work_hours_start}:00 a {work_hours_end}:00.")
+
+                        work_duration = end_hour - start_hour
+                        if work_duration != required_hours:
+                            raise ValueError(f"Pracownik musi pracować {required_hours} godzin.")
+
+                        day = int(day_str[6:8])  # Dzień w formacie 'Ymd'
+                        start_time = datetime(schedule_date.year, schedule_date.month, day, start_hour)
+                        end_time = datetime(schedule_date.year, schedule_date.month, day, end_hour)
+
+                        ScheduleDay.objects.update_or_create(
+                            schedule=schedule,
+                            start_time=start_time,
+                            defaults={'end_time': end_time}
+                        )
+
+                messages.success(request, "Harmonogram został zaktualizowany.")
+                
+        except ValueError as e:
+            messages.error(request, str(e))
+
+        return redirect('manager_schedules_nav', user_id=user_id, direction='none', date_str=date_str)
+
+    return Http404

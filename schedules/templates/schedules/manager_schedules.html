@@ -35,47 +35,50 @@
           </div>
 
         {% if not schedule %}
-        <div style="display: flex; justify-content: space-between;">
-          <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'previous' displayed_date|date:"Y-m" %}">Poprzedni miesiąc</a>
-          <h3>{{ displayed_date|date:"F Y" }}</h3>
-          <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'next' displayed_date|date:"Y-m" %}">Następny miesiąc</a>
-        </div>
-        <button class="btn btn__main" onclick="location.href='{% url 'create_schedule' selected_user.id displayed_date|date:"Y-m" %}'">Utwórz harmonogram</button>
+          <div style="display: flex; justify-content: space-between;">
+            <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'previous' displayed_date|date:"Y-m" %}">Poprzedni miesiąc</a>
+            <h3>{{ displayed_date|date:"F Y" }}</h3>
+            <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'next' displayed_date|date:"Y-m" %}">Następny miesiąc</a>
+          </div>
+          <button class="btn btn__main" onclick="location.href='{% url 'create_schedule' selected_user.id displayed_date|date:"Y-m" %}'">Utwórz harmonogram</button>
         {% else %}
-        <div style="display: flex; justify-content: space-between;">
-          <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'previous' schedule.date|date:"Y-m" %}">Poprzedni miesiąc</a>
-          <h3>{{ schedule.date|date:"F Y" }}</h3>
-          <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'next' schedule.date|date:"Y-m" %}">Następny miesiąc</a>
-        </div>
-        <div class="month-container">
-            {% for date, info in schedule_display.items %}
-                {% if info.on_leave %}
-                <div class="card day_card_request text-center">
-                    <p>{{ date|date:"j" }}</p>
-                    <p>{{ info.weekday }}</p>
-                    <p>Urlop</p>
-                    <br>
-                </div>
-                {% elif info.weekday == 'Sobota' or info.weekday == 'Niedziela' %}
-                <div class="card day_card_free text-center">
-                    <p>{{ date|date:"j" }}</p>
-                    <p>{{ info.weekday }}</p>
-                    <p>Wolne</p>
-                    <br>
-                </div>
-                {% else %}
-                <div class="day_card card text-center">
-                    <p>{{ date|date:"j" }}</p>
-                    <p>{{ info.weekday }}</p>
-                    {% if info.start_time %}
-                        <p>Godziny pracy:<br> {{ info.start_time }} - {{ info.end_time }}</p>
+          <div style="display: flex; justify-content: space-between;">
+            <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'previous' schedule.date|date:"Y-m" %}">Poprzedni miesiąc</a>
+            <h3>{{ schedule.date|date:"F Y" }}</h3>
+            <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'next' schedule.date|date:"Y-m" %}">Następny miesiąc</a>
+          </div>
+          <form method="post" action="{% url 'update_schedule' selected_user.id displayed_date|date:'Y-m' %}">
+            {% csrf_token %}
+            <div class="month-container">
+                {% for date, info in schedule_display.items %}
+                    {% if info.on_leave %}
+                    <div class="card day_card_request text-center">
+                        <p>{{ date|date:"j" }}</p>
+                        <p>{{ info.weekday }}</p>
+                        <p>Urlop</p>
+                        <br>
+                    </div>
+                    {% elif info.weekday == 'Sobota' or info.weekday == 'Niedziela' %}
+                    <div class="card day_card_free text-center">
+                        <p>{{ date|date:"j" }}</p>
+                        <p>{{ info.weekday }}</p>
+                        <p>Wolne</p>
+                        <br>
+                    </div>
                     {% else %}
-                        <p>Godziny pracy:<br> Brak</p>
+                    <div class="day_card card text-center">
+                      <p>{{ date|date:"j" }}</p>
+                      <p>{{ info.weekday }}</p>
+                      <label for="start_hour_{{ date|date:'Ymd' }}">Od:</label>
+                      <input type="number" class="date_input" id="start_hour_{{ date|date:'Ymd' }}" name="start_hour_{{ date|date:'Ymd' }}" min="8" max="20">
+              
+                      <label for="end_hour_{{ date|date:'Ymd' }}">Do:</label>
+                      <input type="number" class="date_input" id="end_hour_{{ date|date:'Ymd' }}" name="end_hour_{{ date|date:'Ymd' }}" min="8" max="20">
+                    </div>
                     {% endif %}
-                </div>
-                {% endif %}
-            {% endfor %}
-        </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn--main">Akceptuj zmiany</button>
         {% endif %}
     </div>
 

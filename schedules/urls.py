@@ -14,4 +14,5 @@ urlpatterns = [
     path('manager_schedules/<int:user_id>/<str:direction>/<str:date_str>', views.manager_schedules, name="manager_schedules_nav"),
 
     path('create_schedule/<int:user_id>/<str:date_str>/', views.create_schedule, name='create_schedule'),
+    path('update_schedule/<int:user_id>/<str:date_str>/', views.update_schedule, name='update_schedule'),
 ]
