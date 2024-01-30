@@ -5,12 +5,12 @@ from dateutil.relativedelta import relativedelta
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.formats import date_format
 from django.utils.timezone import make_aware, now
-from django.db import transaction
 
 from Leave_requests.models import Leave_request
 from WorkWatch.decorators import manager_required, non_manager_required
@@ -77,6 +77,17 @@ def prepare_schedule_info(user, schedule_id: uuid.UUID | None = None) -> dict:
 
     context['schedule'] = schedule
     context['schedule_display'] = schedule_display
+
+    scheduled_days = ScheduleDay.objects.filter(schedule=schedule)
+    for date in schedule_display:
+        for day in scheduled_days:
+            if day.start_time.day == date.day:
+                schedule_display[date]['start_time'] = day.start_time
+                schedule_display[date]['end_time'] = day.end_time
+                # Dodajemy godziny pracy
+                schedule_display[date]['work_start_hour'] = day.start_time.hour
+                schedule_display[date]['work_end_hour'] = day.end_time.hour
+
     return context
 
 # Create your views here.
@@ -205,8 +216,7 @@ def update_schedule(request, user_id, date_str):
     if request.method == 'POST':
         selected_user = get_object_or_404(User, id=user_id)
         profile = selected_user.profile
-        schedule_date = datetime.strptime(date_str, '%Y-%m')
-        schedule_date = make_aware(schedule_date)
+        schedule_date = datetime.strptime(date_str, '%Y-%m').date()  # tylko data bez czasu
 
         work_hours_start = 8
         work_hours_end = 20
@@ -214,12 +224,11 @@ def update_schedule(request, user_id, date_str):
 
         try:
             with transaction.atomic():
-                # Znajdź lub utwórz obiekt Schedule dla danego użytkownika i daty
-                schedule, created = Schedule.objects.get_or_create(
-                    user=selected_user,
-                    date__year=schedule_date.year,
-                    date__month=schedule_date.month,
-                    defaults={'date': schedule_date}
+                # Pobierz istniejący harmonogram dla wybranego użytkownika i daty
+                schedule = Schedule.objects.get(
+                    user=selected_user, 
+                    date__year=schedule_date.year, 
+                    date__month=schedule_date.month
                 )
 
                 # Iteruj przez dni miesiąca i zapisuj godziny pracy

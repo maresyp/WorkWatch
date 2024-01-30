@@ -40,14 +40,14 @@
             <h3>{{ displayed_date|date:"F Y" }}</h3>
             <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'next' displayed_date|date:"Y-m" %}">Następny miesiąc</a>
           </div>
-          <button class="btn btn__main" onclick="location.href='{% url 'create_schedule' selected_user.id displayed_date|date:"Y-m" %}'">Utwórz harmonogram</button>
+          <button class="btn btn--main" onclick="location.href='{% url 'create_schedule' selected_user.id displayed_date|date:"Y-m" %}'">Utwórz harmonogram</button>
         {% else %}
           <div style="display: flex; justify-content: space-between;">
             <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'previous' schedule.date|date:"Y-m" %}">Poprzedni miesiąc</a>
             <h3>{{ schedule.date|date:"F Y" }}</h3>
             <a class="btn btn__main" href="{% url 'manager_schedules_nav' selected_user.id 'next' schedule.date|date:"Y-m" %}">Następny miesiąc</a>
           </div>
-          <form method="post" action="{% url 'update_schedule' selected_user.id displayed_date|date:'Y-m' %}">
+          <form method="post" action="{% url 'update_schedule' selected_user.id schedule.date|date:'Y-m' %}">
             {% csrf_token %}
             <div class="month-container">
                 {% for date, info in schedule_display.items %}
@@ -69,11 +69,14 @@
                     <div class="day_card card text-center">
                       <p>{{ date|date:"j" }}</p>
                       <p>{{ info.weekday }}</p>
-                      <label for="start_hour_{{ date|date:'Ymd' }}">Od:</label>
-                      <input type="number" class="date_input" id="start_hour_{{ date|date:'Ymd' }}" name="start_hour_{{ date|date:'Ymd' }}" min="8" max="20">
-              
-                      <label for="end_hour_{{ date|date:'Ymd' }}">Do:</label>
-                      <input type="number" class="date_input" id="end_hour_{{ date|date:'Ymd' }}" name="end_hour_{{ date|date:'Ymd' }}" min="8" max="20">
+                      <div>
+                        <label for="start_hour_{{ date|date:'Ymd' }}">Od:</label>
+                        <input type="number" class="date_input" name="start_hour_{{ date|date:'Ymd' }}" min="8" max="20" value="{{ info.work_start_hour|default_if_none:'' }}">
+                      </div>
+                      <div>
+                        <label for="end_hour_{{ date|date:'Ymd' }}">Do:</label>
+                        <input type="number" class="date_input" name="end_hour_{{ date|date:'Ymd' }}" min="8" max="20" value="{{ info.work_end_hour|default_if_none:'' }}">
+                      </div>
                     </div>
                     {% endif %}
                 {% endfor %}
@@ -81,7 +84,6 @@
             <button type="submit" class="btn btn--main">Akceptuj zmiany</button>
         {% endif %}
     </div>
-
   </div>
 </main>
 
