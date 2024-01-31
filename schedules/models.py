@@ -21,4 +21,4 @@ class ScheduleDay(models.Model):
     end_time = models.DateTimeField(null=False)
 
     def __str__(self):
-        return f"{self.day} for {self.schedule}"
+        return f"{self.start_time} for {self.schedule}"

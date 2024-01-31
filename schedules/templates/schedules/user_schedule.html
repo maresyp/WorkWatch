@@ -3,64 +3,52 @@
 {% block content %}
 
 <!-- Main Section -->
-
-<style>
-    .grid-container {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        grid-gap: 10px;
-    }
-    .card {
-        background-color: #299AD7;
-        color: white !important;
-    }
-    .card_free {
-        background-color: #57BC84;
-        color: white !important;
-    }
-    .card_request {
-        background-color: #FFCF87;
-        color: white !important;
-    }
-</style>
-
 <main class="settingsPage profile my-xl">
-    {% if not schedule %}
-    <h1>Twoje konto nie ma jeszcze przypisanego harmonogramu</h1>
-    {% else %}
-    <h3>{{ schedule.date|date:"F Y" }}</h3>
-    <a href="{% url 'user_schedule_navigation' schedule.id 'previous' %}">prev</a>
-    <a href="{% url 'user_schedule_navigation' schedule.id 'next' %}">next</a>
-    <div class="grid-container">
-        {% for date, info in schedule_display.items %}
-            {% if info.on_leave %}
-            <div class="card card_request text-center">
-                <p>{{ date|date:"j" }}</p>
-                <p>{{ info.weekday }}</p>
-                <p>Urlop</p>
-                <br>
-            </div>
-            {% elif info.weekday == 'Sobota' or info.weekday == 'Niedziela' %}
-            <div class="card card_free text-center">
-                <p>{{ date|date:"j" }}</p>
-                <p>{{ info.weekday }}</p>
-                <p>Wolne</p>
-                <br>
-            </div>
-            {% else %}
-            <div class="card text-center">
-                <p>{{ date|date:"j" }}</p>
-                <p>{{ info.weekday }}</p>
-                {% if info.start_time %}
-                    <p>Godziny pracy:<br> {{ info.start_time }} - {{ info.end_time }}</p>
+  <div class="container">
+    <div class="layout">
+      <div class="column column--1of1">
+        {% if not schedule %}
+        <h1>Twoje konto nie ma jeszcze przypisanego harmonogramu</h1>
+        {% else %}
+        <div style="display: flex; justify-content: space-between;">
+            <a class="btn btn__main" href="{% url 'user_schedule_navigation' schedule.id 'previous' %}">Poprzedni miesiąc</a>
+            <h3>{{ schedule.date|date:"F Y" }}</h3>
+            <a class="btn btn__main" href="{% url 'user_schedule_navigation' schedule.id 'next' %}">Następny miesiąc</a>
+        </div>
+        <div class="month-container">
+            {% for _ in blank_days %}
+            <div class="card" style="height:auto;"></div>
+            {% endfor %}
+
+            {% for date, info in schedule_display.items %}
+                {% if info.on_leave %}
+                <div class="card day_card_request text-center">
+                    <p>{{ date|date:"j" }}, {{ info.weekday }}</p>
+                    <p><b>Urlop</b></p>
+                    <br>
+                </div>
+                {% elif info.weekday == 'Sobota' or info.weekday == 'Niedziela' %}
+                <div class="card day_card_free text-center">
+                    <p>{{ date|date:"j" }}, {{ info.weekday }}</p>
+                    <p><b>Wolne</b></p>
+                    <br>
+                </div>
                 {% else %}
-                    <p>Godziny pracy:<br> Brak</p>
+                <div class="card day_card text-center">
+                  <p>{{ date|date:"j" }}, {{ info.weekday }}</p>
+                    {% if info.start_time %}
+                        <p>Godziny pracy:<br><b> {{ info.work_start_hour }} - {{ info.work_end_hour }} </b></p>
+                    {% else %}
+                        <p>Godziny pracy:<br><b> Do ustalenia </b></p>
+                    {% endif %}
+                </div>
                 {% endif %}
-            </div>
-            {% endif %}
-        {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+      </div>
     </div>
-    {% endif %}
-  </main>
+  </div>
+</main>
 
 {% endblock %}

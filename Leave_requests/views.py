@@ -1,9 +1,10 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.db.models import Q
 from WorkWatch.decorators import non_manager_required, manager_required
+from schedules.models import ScheduleDay
 from .models import Leave_request
 from .forms import LeaveRequestForm
 
@@ -120,7 +121,17 @@ def accept_leave_request(request, request_id):
     leave_request = get_object_or_404(Leave_request, pk=request_id)
     leave_request.status = '2'  # Status 'zaakceptowany'
     leave_request.save()
+
+    # Pobierz id użytkownika wnioskującego o urlop
     user_id = leave_request.user.id
+
+    # Usuń wszystkie ScheduleDay dla tego użytkownika, które zawierają się w zakresie dat wniosku urlopowego
+    ScheduleDay.objects.filter(
+        Q(schedule__user_id=user_id) &
+        Q(start_time__gte=leave_request.start_date) &
+        Q(end_time__lte=leave_request.end_date)
+    ).delete()
+
     messages.success(request, 'Wniosek urlopowy został zaakceptowany.')
     return redirect('Manager_leave_requests', user_id=user_id)
 
