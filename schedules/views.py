@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.formats import date_format
 from django.utils.timezone import make_aware, now
@@ -270,3 +270,27 @@ def update_schedule(request, user_id, date_str):
         return redirect('manager_schedules_nav', user_id=user_id, direction='none', date_str=date_str)
 
     return Http404
+
+def search_users(request):
+    query = request.GET.get('query', '')
+    non_managers = User.objects.exclude(groups__name='Managers')
+
+    if query:
+        results = non_managers.filter(
+            Q(first_name__icontains=query) | Q(last_name__icontains=query)
+        )
+    else:
+        results = non_managers
+
+    data = [get_user_data(user) for user in results]
+    return JsonResponse(data, safe=False)
+
+def get_user_data(user):
+    profile = user.profile if hasattr(user, 'profile') else None
+    imageURL = profile.imageURL if profile else ''
+    return {
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'imageURL': imageURL,
+        'id': user.id,
+    }

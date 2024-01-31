@@ -1346,6 +1346,7 @@ img {
     display: flex;
     justify-content: flex-end; /* Wyrównuje przycisk do prawej strony */
     margin-top: 20px; /* Dodaje margines na górze dla odstępu */
+}
 
 .search__bar {
     background-color: var(--color-bg);
