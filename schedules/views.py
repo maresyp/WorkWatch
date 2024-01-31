@@ -143,40 +143,34 @@ def manager_schedules(request, user_id: int | None = None, direction: str | None
 
     if user_id is not None:
         selected_user = User.objects.filter(id=user_id).first()
-        if selected_user:
-            context['selected_user'] = selected_user
-            context['profile'] = selected_user.profile
-
-            if date_str:
-                displayed_date = datetime.strptime(date_str, '%Y-%m').replace(tzinfo=UTC)
-            else:
-                displayed_date = current_date
-
-            if direction == 'next':
-                displayed_date += relativedelta(months=1)
-            elif direction == 'previous':
-                displayed_date -= relativedelta(months=1)
-
-            schedule = Schedule.objects.filter(
-                user=selected_user, 
-                date__month=displayed_date.month, 
-                date__year=displayed_date.year
-            ).first()
-
-            if schedule:
-                context.update(prepare_schedule_info(selected_user, schedule_id=schedule.id))
-            else:
-                context['displayed_date'] = displayed_date
-        else:
-            messages.error(request, "Nie znaleziono wybranego użytkownika.")
     else:
-        # Domyślne wartości, gdy nie jest wybrany żaden użytkownik
-        default_user = context['users'].first()
-        context.update({
-            'selected_user': default_user,
-            'profile': default_user.profile,
-            'schedule': prepare_schedule_info(default_user, schedule_id=None)['schedule']
-        })
+        selected_user = context['users'].first()
+    if selected_user:
+        context['selected_user'] = selected_user
+        context['profile'] = selected_user.profile
+
+        if date_str:
+            displayed_date = datetime.strptime(date_str, '%Y-%m').replace(tzinfo=UTC)
+        else:
+            displayed_date = current_date
+
+        if direction == 'next':
+            displayed_date += relativedelta(months=1)
+        elif direction == 'previous':
+            displayed_date -= relativedelta(months=1)
+
+        schedule = Schedule.objects.filter(
+            user=selected_user, 
+            date__month=displayed_date.month, 
+            date__year=displayed_date.year
+        ).first()
+
+        if schedule:
+            context.update(prepare_schedule_info(selected_user, schedule_id=schedule.id))
+        else:
+            context['displayed_date'] = displayed_date
+    else:
+        messages.error(request, "Nie znaleziono wybranego użytkownika.")
 
     return render(request, 'schedules/manager_schedules.html', context=context)
 
