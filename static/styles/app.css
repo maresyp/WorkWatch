@@ -1346,4 +1346,13 @@ img {
     display: flex;
     justify-content: flex-end; /* Wyrównuje przycisk do prawej strony */
     margin-top: 20px; /* Dodaje margines na górze dla odstępu */
+
+.search__bar {
+    background-color: var(--color-bg);
+    width: 60%;
+    border: 2px solid var(--color-main-light);
+    border-radius: 2rem;
+    margin-top: 4rem;
+    height: 4rem;
+    padding: 2rem;
 }
