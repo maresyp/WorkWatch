@@ -50,25 +50,26 @@
           <form method="post" action="{% url 'update_schedule' selected_user.id schedule.date|date:'Y-m' %}">
             {% csrf_token %}
             <div class="month-container">
+                {% for _ in blank_days %}
+                <div class="card" style="height:auto;"></div>
+                {% endfor %}
+
                 {% for date, info in schedule_display.items %}
                     {% if info.on_leave %}
                     <div class="card day_card_request text-center">
-                        <p>{{ date|date:"j" }}</p>
-                        <p>{{ info.weekday }}</p>
+                        <p>{{ date|date:"j" }}<br>{{ info.weekday }}</p>
                         <p>Urlop</p>
                         <br>
                     </div>
                     {% elif info.weekday == 'Sobota' or info.weekday == 'Niedziela' %}
                     <div class="card day_card_free text-center">
-                        <p>{{ date|date:"j" }}</p>
-                        <p>{{ info.weekday }}</p>
+                        <p>{{ date|date:"j" }}<br>{{ info.weekday }}</p>
                         <p>Wolne</p>
                         <br>
                     </div>
                     {% else %}
                     <div class="day_card card text-center">
-                      <p>{{ date|date:"j" }}</p>
-                      <p>{{ info.weekday }}</p>
+                      <p>{{ date|date:"j" }}<br>{{ info.weekday }}</p>
                       <div>
                         <label for="start_hour_{{ date|date:'Ymd' }}">Od:</label>
                         <input type="number" class="date_input" name="start_hour_{{ date|date:'Ymd' }}" min="8" max="20" value="{{ info.work_start_hour|default_if_none:'' }}">
@@ -81,7 +82,9 @@
                     {% endif %}
                 {% endfor %}
             </div>
-            <button type="submit" class="btn btn--main">Akceptuj zmiany</button>
+            <div class="submit-container">
+              <button type="submit" class="btn btn--main">Akceptuj zmiany</button>
+            </div>
         {% endif %}
     </div>
   </div>

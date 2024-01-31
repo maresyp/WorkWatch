@@ -87,6 +87,7 @@ def prepare_schedule_info(user, schedule_id: uuid.UUID | None = None) -> dict:
                 # Dodajemy godziny pracy
                 schedule_display[date]['work_start_hour'] = day.start_time.hour
                 schedule_display[date]['work_end_hour'] = day.end_time.hour
+                
 
     return context
 

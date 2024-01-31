@@ -23,26 +23,23 @@
             {% for date, info in schedule_display.items %}
                 {% if info.on_leave %}
                 <div class="card day_card_request text-center">
-                    <p>{{ date|date:"j" }}</p>
-                    <p>{{ info.weekday }}</p>
-                    <p>Urlop</p>
+                    <p>{{ date|date:"j" }}, {{ info.weekday }}</p>
+                    <p><b>Urlop</b></p>
                     <br>
                 </div>
                 {% elif info.weekday == 'Sobota' or info.weekday == 'Niedziela' %}
                 <div class="card day_card_free text-center">
-                    <p>{{ date|date:"j" }}</p>
-                    <p>{{ info.weekday }}</p>
-                    <p>Wolne</p>
+                    <p>{{ date|date:"j" }}, {{ info.weekday }}</p>
+                    <p><b>Wolne</b></p>
                     <br>
                 </div>
                 {% else %}
                 <div class="card day_card text-center">
-                    <p>{{ date|date:"j" }}</p>
-                    <p>{{ info.weekday }}</p>
+                  <p>{{ date|date:"j" }}, {{ info.weekday }}</p>
                     {% if info.start_time %}
-                        <p>Godziny pracy:<br> {{ info.start_time }} - {{ info.end_time }}</p>
+                        <p>Godziny pracy:<br><b> {{ info.work_start_hour }} - {{ info.work_end_hour }} </b></p>
                     {% else %}
-                        <p>Godziny pracy:<br> Brak</p>
+                        <p>Godziny pracy:<br><b> Do ustalenia </b></p>
                     {% endif %}
                 </div>
                 {% endif %}
