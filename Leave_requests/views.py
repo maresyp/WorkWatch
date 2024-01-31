@@ -176,6 +176,7 @@ def get_user_data(user, has_request=False):
     return {
         'first_name': user.first_name,
         'last_name': user.last_name,
+        'username': user.username,
         'imageURL': imageURL,
         'id': user.id,
         'has_request': has_request  # Dodatkowe pole informujące o wniosku
